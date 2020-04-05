@@ -1,83 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 )
 
-type Vector3 struct {
-	X float32
-	Y float32
-	Z float32
-}
-
-func (vector Vector3) String() string {
-	return fmt.Sprintf("{X: %v, Y: %v, Z: %v}", vector.X, vector.Y, vector.Z)
-}
-
-type Vector2 struct {
-	X float32
-	Y float32
-}
-
-func (vector Vector2) String() string {
-	return fmt.Sprintf("{x: %v, Y: %v}", vector.X, vector.Y)
-}
-
-type Camera struct {
-	CanvasDist float32
-}
-
 type Image interface {
 	Set(x, y int, c color.Color)
 }
 
-
 func main() {
 	// Init vars.
-	worldCoordPoints := []Vector3{
-		{ 1, -1, -5},
-		{ 1, -1, -3},
-		{ 1,  1, -5},
-		{ 1,  1, -3},
-		{-1, -1, -5},
-		{-1, -1, -3},
-		{-1,  1, -5},
-		{-1,  1, -3},
-	}
-	edges := [][]int{
-		{0, 1},
-		{1, 3},
-		{3, 2},
-		{2, 0},
-		{4, 5},
-		{5, 7},
-		{7, 6},
-		{6, 4},
-		{0, 4},
-		{1, 5},
-		{3, 7},
-		{2, 6},
+	cube := Cube{
+		Center: Vector3{0, 0, -4},
+		Scale: Vector3{1, 3, 2},
 	}
 	camera := Camera {
 		CanvasDist: -1,
+		Rect: image.Rect(0, 0, 2, 2),
 	}
+	imageRect := image.Rect(0, 0, 512, 512)
 
 	// Do work.
 	imageCoords := make([]image.Point, 8)
-	for i, vector := range worldCoordPoints {
+	for i, vector := range cube.Verts() {
 		screenPoint := perspectiveDivide(&vector, &camera)
 		normalize(&screenPoint, &camera)
-		imageCoords[i] = normalToImage(screenPoint, 512, 512)
+		imageCoords[i] = normalToImage(screenPoint, imageRect)
 	}
 
 	// Create image.
-	img := image.NewGray(image.Rect(0, 0, 512, 512))
+	img := image.NewGray(imageRect)
 	file, _ := os.Create("image.png")
-	for _, edge := range edges {
+	for _, edge := range cube.Edges() {
 		Line(imageCoords[edge[0]], imageCoords[edge[1]], img)
 	}
 	png.Encode(file, img)
@@ -95,13 +52,12 @@ func perspectiveDivide(vector *Vector3, camera *Camera) Vector2 {
 }
 
 func normalize(vector *Vector2, camera *Camera) {
-	// TODO: Change '2' to instead use camera.
-	vector.X = (vector.X + 1) / 2;
-	vector.Y = (vector.Y + 1) / 2;
+	vector.X = (vector.X + 1) / float32(camera.Rect.Dx());
+	vector.Y = (vector.Y + 1) / float32(camera.Rect.Dy());
 }
 
-func normalToImage(v Vector2, x, y float32) image.Point {
-	return image.Point{int(v.X * x), int(v.Y * y)}
+func normalToImage(v Vector2, rect image.Rectangle) image.Point {
+	return image.Point{int(v.X * float32(rect.Dx())), int(v.Y * float32(rect.Dy()))}
 }
 
 func Line(a, b image.Point, img Image) {
