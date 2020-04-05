@@ -15,7 +15,8 @@ func main() {
 	// Init vars.
 	cube := Cube{
 		Center: Vector3{0, 0, -4},
-		Scale: Vector3{1, 3, 2},
+		Scale: Vector3{2, 2, 2},
+		Rot: 30,  // Degrees.
 	}
 	camera := Camera {
 		CanvasDist: -1,
@@ -24,18 +25,18 @@ func main() {
 	imageRect := image.Rect(0, 0, 512, 512)
 
 	// Do work.
-	imageCoords := make([]image.Point, 8)
+	rasterCoords := make([]image.Point, 8)
 	for i, vector := range cube.Verts() {
 		screenPoint := perspectiveDivide(&vector, &camera)
 		normalize(&screenPoint, &camera)
-		imageCoords[i] = normalToImage(screenPoint, imageRect)
+		rasterCoords[i] = normalToImage(screenPoint, imageRect)
 	}
 
 	// Create image.
 	img := image.NewGray(imageRect)
 	file, _ := os.Create("image.png")
 	for _, edge := range cube.Edges() {
-		Line(imageCoords[edge[0]], imageCoords[edge[1]], img)
+		Line(rasterCoords[edge[0]], rasterCoords[edge[1]], img)
 	}
 	png.Encode(file, img)
 }
