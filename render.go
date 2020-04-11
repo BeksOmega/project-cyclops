@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"fmt"
 )
 
 type Image interface {
@@ -12,11 +13,38 @@ type Image interface {
 }
 
 func main() {
+
+	matrixA := Matrix4x4{
+		entries: [4][4]float64{
+			{2, 0, 0, 0},
+			{0, 1, 0, 0},
+			{0, 0, 1, 0},
+			{4, 4, 4, 1},
+		},
+	}
+
+	/*matrixB := Matrix4x4{
+		entries: [4][4]float64{
+			{2, 0, 0, 0},
+			{0, 1, 0, 0},
+			{0, 0, 1, 0},
+			{0, 0, 0, 1},
+		},
+	}*/
+
+	vectorA := Vector3{ 1, 0, 0 }
+
+	//matrixB = *matrixB.Compose(&matrixA);
+	//fmt.Print(matrixB.ToString());
+
+	vectorA = *matrixA.Multiply(&vectorA);
+	fmt.Print(vectorA.String());
+
 	// Init vars.
 	cube := Cube{
 		Center: Vector3{0, 0, -4},
 		Scale: Vector3{2, 2, 2},
-		Rot: 30,  // Degrees.
+		Rot: Vector3{0, 0, 0},  // Degrees.
 	}
 	camera := Camera {
 		CanvasDist: -1,
@@ -53,12 +81,12 @@ func perspectiveDivide(vector *Vector3, camera *Camera) Vector2 {
 }
 
 func normalize(vector *Vector2, camera *Camera) {
-	vector.X = (vector.X + 1) / float32(camera.Rect.Dx());
-	vector.Y = (vector.Y + 1) / float32(camera.Rect.Dy());
+	vector.X = (vector.X + 1) / float64(camera.Rect.Dx());
+	vector.Y = (vector.Y + 1) / float64(camera.Rect.Dy());
 }
 
 func normalToImage(v Vector2, rect image.Rectangle) image.Point {
-	return image.Point{int(v.X * float32(rect.Dx())), int(v.Y * float32(rect.Dy()))}
+	return image.Point{int(v.X * float64(rect.Dx())), int(v.Y * float64(rect.Dy()))}
 }
 
 func Line(a, b image.Point, img Image) {

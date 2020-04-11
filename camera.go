@@ -5,7 +5,7 @@ import (
 )
 
 type Camera struct {
-	CanvasDist float32
+	CanvasDist float64
 	Rect image.Rectangle
 }
 

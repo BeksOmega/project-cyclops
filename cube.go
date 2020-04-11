@@ -2,13 +2,23 @@ package main
 
 import (
 	"math"
-	"fmt"
 )
+
+var cubeVerts = [8]Vector3 {
+	{ 1, -1, -1},
+	{ 1, -1,  1},
+	{ 1,  1, -1},
+	{ 1,  1,  1},
+	{-1, -1, -1},
+	{-1, -1,  1},
+	{-1,  1, -1},
+	{-1,  1,  1},
+}
 
 type Cube struct {
 	Center Vector3
 	Scale Vector3
-	Rot int
+	Rot Vector3
 }
 
 func (Cube) Edges() [12][2]int {
@@ -29,35 +39,31 @@ func (Cube) Edges() [12][2]int {
 }
 
 func (cube Cube) Verts() [8]Vector3 {
-	halfX := cube.Scale.X / 2
-	halfY := cube.Scale.Y / 2
-	halfZ := cube.Scale.Z / 2
-	center := cube.Center
-	scaled := [8]Vector3{
-		{center.X + halfX, center.Y - halfY, center.Z - halfZ},
-		{center.X + halfX, center.Y - halfY, center.Z + halfZ},
-		{center.X + halfX, center.Y + halfY, center.Z - halfZ},
-		{center.X + halfX, center.Y + halfY, center.Z + halfZ},
-		{center.X - halfX, center.Y - halfY, center.Z - halfZ},
-		{center.X - halfX, center.Y - halfY, center.Z + halfZ},
-		{center.X - halfX, center.Y + halfY, center.Z - halfZ},
-		{center.X - halfX, center.Y + halfY, center.Z + halfZ},
+	rot := vectorToRadians(cube.Rot)
+	rotM := MakeRotationMatrix(&rot)
+	scaleM := MakeScaleMatrix(&cube.Scale);
+	tranM := MakeTranslateMatrix(&cube.Center);
+	mat := rotM.Compose(tranM).Compose(scaleM)
+	return [8] Vector3 {
+		*mat.Multiply(&cubeVerts[0]),
+		*mat.Multiply(&cubeVerts[1]),
+		*mat.Multiply(&cubeVerts[2]),
+		*mat.Multiply(&cubeVerts[3]),
+		*mat.Multiply(&cubeVerts[4]),
+		*mat.Multiply(&cubeVerts[5]),
+		*mat.Multiply(&cubeVerts[6]),
+		*mat.Multiply(&cubeVerts[7]),
 	}
+}
 
-	var rotated [8]Vector3
-	rotation := float64(cube.Rot) * math.Pi / float64(180);  // Deg -> Rad
-	for i, coord := range scaled {
-		x := float64(coord.X)
-		y := float64(coord.Y)
-		// To polar.
-		radius := math.Hypot(x, y)
-		angle := math.Atan2(y, x) + rotation
-		// Back to cartesian.
-		rotated[i] = Vector3 {
-			float32(math.Cos(angle) * radius),
-			float32(math.Sin(angle) * radius),
-			coord.Z,
-		}
+func vectorToRadians(vec Vector3) Vector3 {
+	return Vector3 {
+		degreesToRadians(vec.X),
+		degreesToRadians(vec.Y),
+		degreesToRadians(vec.Z),
 	}
-	return rotated
+}
+
+func degreesToRadians(d float64) float64 {
+	return float64(d) * math.Pi / float64(180);
 }

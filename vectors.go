@@ -6,9 +6,9 @@ import (
 )
 
 type Vector3 struct {
-	X float32
-	Y float32
-	Z float32
+	X float64
+	Y float64
+	Z float64
 }
 
 func (vector Vector3) String() string {
@@ -16,8 +16,8 @@ func (vector Vector3) String() string {
 }
 
 type Vector2 struct {
-	X float32
-	Y float32
+	X float64
+	Y float64
 }
 
 func (vector Vector2) String() string {
