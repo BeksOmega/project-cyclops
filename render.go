@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/png"
 	"os"
-	"fmt"
 )
 
 type Image interface {
@@ -13,38 +12,11 @@ type Image interface {
 }
 
 func main() {
-
-	matrixA := Matrix4x4{
-		entries: [4][4]float64{
-			{2, 0, 0, 0},
-			{0, 1, 0, 0},
-			{0, 0, 1, 0},
-			{4, 4, 4, 1},
-		},
-	}
-
-	/*matrixB := Matrix4x4{
-		entries: [4][4]float64{
-			{2, 0, 0, 0},
-			{0, 1, 0, 0},
-			{0, 0, 1, 0},
-			{0, 0, 0, 1},
-		},
-	}*/
-
-	vectorA := Vector3{ 1, 0, 0 }
-
-	//matrixB = *matrixB.Compose(&matrixA);
-	//fmt.Print(matrixB.ToString());
-
-	vectorA = *matrixA.Multiply(&vectorA);
-	fmt.Print(vectorA.String());
-
 	// Init vars.
 	cube := Cube{
 		Center: Vector3{0, 0, -4},
-		Scale: Vector3{2, 2, 2},
-		Rot: Vector3{0, 0, 0},  // Degrees.
+		Scale: Vector3{1, 1, 1},
+		Rot: Vector3{0, 30, 0},  // Degrees.
 	}
 	camera := Camera {
 		CanvasDist: -1,

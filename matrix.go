@@ -49,7 +49,7 @@ func MakeRotationMatrix(r *Vector3) *Matrix4x4 {
 	}
 
 	yC := math.Cos(r.Y)
-	yS := math.Cos(r.Y)
+	yS := math.Sin(r.Y)
 	yMat := &Matrix4x4{
 		entries: [4][4]float64{
 			{ yC,   0,  yS, 0},
